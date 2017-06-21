@@ -33,7 +33,7 @@ Ensure you have installed and activated the latest Swift 3.0 tool chain.
 Add this project as a dependency in your Package.swift file.
 
 ``` swift
-.Package(url: "https://github.com/PerfectlySoft/Perfect-Authentication.git", majorVersion: 1)
+.Package(url: "https://github.com/PerfectlySoft/Perfect-OAuth2.git", majorVersion: 1)
 ```
 
 To then use the OAuth2 module in your code:
