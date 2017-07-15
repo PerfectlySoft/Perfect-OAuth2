@@ -64,7 +64,7 @@ public class Facebook: OAuth2 {
 		let fields = ["id","first_name","last_name","picture"]
 		let url = "https://graph.facebook.com/v2.8/me?fields=\(fields.joined(separator: "%2C"))&access_token=\(accessToken)"
 
-//		let (_, data, _, _) = makeRequest(.get, url)
+		//		let (_, data, _, _) = makeRequest(.get, url)
 		let data = makeRequest(.get, url)
 
 		var out = [String: Any]()
@@ -86,12 +86,12 @@ public class Facebook: OAuth2 {
 
 	/// Facebook-specific exchange function
 	public func exchange(request: HTTPRequest, state: String) throws -> OAuth2Token {
-		return try exchange(request: request, state: state, redirectURL: "\(FacebookConfig.endpointAfterAuth)?session=\((request.session?.token)!)")
+		return try exchange(request: request, state: state, redirectURL: FacebookConfig.endpointAfterAuth)
 	}
 
 	/// Facebook-specific login link
 	public func getLoginLink(state: String, request: HTTPRequest, scopes: [String] = []) -> String {
-		return getLoginLink(redirectURL: "\(FacebookConfig.endpointAfterAuth)?session=\((request.session?.token)!)", state: state, scopes: scopes)
+		return getLoginLink(redirectURL: FacebookConfig.endpointAfterAuth, state: state, scopes: scopes)
 	}
 
 
@@ -143,18 +143,19 @@ public class Facebook: OAuth2 {
 	/// Route definition would be in the form
 	/// ["method":"get", "uri":"/to/facebook", "handler":Facebook.sendToProvider]
 	public static func sendToProvider(data: [String:Any]) throws -> RequestHandler {
-//		let rand = URandom()
+		//		let rand = URandom()
 
 		return {
 			request, response in
 			// Add secure state token to session
 			// We expect to get this back from the auth
-//			request.session?.data["state"] = rand.secureToken
+			//			request.session?.data["state"] = rand.secureToken
 			let fb = Facebook(clientID: FacebookConfig.appid, clientSecret: FacebookConfig.secret)
 			response.redirect(path: fb.getLoginLink(state: request.session?.data["csrf"] as! String, request: request))
 		}
 	}
-	
-	
+
+
 }
+
 

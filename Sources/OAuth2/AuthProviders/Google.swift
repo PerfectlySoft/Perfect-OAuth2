@@ -68,7 +68,7 @@ public class Google: OAuth2 {
 	public func getUserData(_ accessToken: String) -> [String: Any] {
 		let fields = ["family_name","given_name","id","picture"]
 		let url = "https://www.googleapis.com/oauth2/v2/userinfo?fields=\(fields.joined(separator: "%2C"))&access_token=\(accessToken)"
-//		let (_, data, _, _) = makeRequest(.get, url)
+		//		let (_, data, _, _) = makeRequest(.get, url)
 		let data = makeRequest(.get, url)
 
 		var out = [String: Any]()
@@ -91,7 +91,7 @@ public class Google: OAuth2 {
 
 	/// Google-specific exchange function
 	public func exchange(request: HTTPRequest, state: String) throws -> OAuth2Token {
-		let token = try exchange(request: request, state: state, redirectURL: "\(GoogleConfig.endpointAfterAuth)?session=\((request.session?.token)!)")
+		let token = try exchange(request: request, state: state, redirectURL: GoogleConfig.endpointAfterAuth)
 
 		if let domain = GoogleConfig.restrictedDomain {
 			guard let hd = token.webToken?["hd"] as? String, hd == domain else {
@@ -104,11 +104,14 @@ public class Google: OAuth2 {
 
 	/// Google-specific login link
 	public func getLoginLink(state: String, request: HTTPRequest, scopes: [String] = ["profile"]) -> String {
-		var url = getLoginLink(redirectURL: "\(GoogleConfig.endpointAfterAuth)?session=\((request.session?.token)!)", state: state, scopes: scopes)
-		if let domain = GoogleConfig.restrictedDomain {
-			url += "&hd=\(domain)"
-		}
-		return url
+		//?session=\((request.session?.token)!)
+		//print("OAUTH2DEBUG FROM WITH \(request.session?.token)")
+		return getLoginLink(redirectURL: GoogleConfig.endpointAfterAuth, state: state, scopes: scopes)
+		//		var url = getLoginLink(redirectURL: "\(GoogleConfig.endpointAfterAuth)", state: state, scopes: scopes)
+		//		if let domain = GoogleConfig.restrictedDomain {
+		//			url += "&hd=\(domain)"
+		//		}
+		//		return url
 	}
 
 
@@ -118,9 +121,11 @@ public class Google: OAuth2 {
 	public static func authResponse(data: [String:Any]) throws -> RequestHandler {
 		return {
 			request, response in
+			//	print("OAUTH2DEBUG TO WITH \(request.session?.token)")
 			let fb = Google(clientID: GoogleConfig.appid, clientSecret: GoogleConfig.secret)
 			do {
 				guard let state = request.session?.data["csrf"] else {
+					print("OAUTH2DEBUG ERROR state did not equal csrf")
 					throw OAuth2Error(code: .unsupportedResponseType)
 				}
 				let t = try fb.exchange(request: request, state: state as! String)
@@ -146,7 +151,7 @@ public class Google: OAuth2 {
 				}
 
 			} catch {
-				print(error)
+				print("OAUTH2DEBUG, error from exchange: \(error)")
 			}
 			response.redirect(path: GoogleConfig.redirectAfterAuth, sessionid: (request.session?.token)!)
 		}
@@ -160,13 +165,13 @@ public class Google: OAuth2 {
 	/// Route definition would be in the form
 	/// ["method":"get", "uri":"/to/google", "handler":Google.sendToProvider]
 	public static func sendToProvider(data: [String:Any]) throws -> RequestHandler {
-//		let rand = URandom()
+		//		let rand = URandom()
 
 		return {
 			request, response in
 			// Add secure state token to session
 			// We expect to get this back from the auth
-//			request.session?.data["state"] = rand.secureToken
+			//			request.session?.data["state"] = rand.secureToken
 			let fb = Google(clientID: GoogleConfig.appid, clientSecret: GoogleConfig.secret)
 			response.redirect(path: fb.getLoginLink(state: request.session?.data["csrf"] as! String, request: request))
 		}
@@ -174,4 +179,5 @@ public class Google: OAuth2 {
 
 
 }
+
 
