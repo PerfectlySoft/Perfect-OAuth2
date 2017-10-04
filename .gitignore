@@ -4,3 +4,6 @@
 /*.xcodeproj
 /config/ApplicationConfiguration.json
 Package.pins
+Package.resolved
+PADockerfile_build
+.build_lin
