@@ -157,17 +157,10 @@ public class Vk: OAuth2 {
     /// Route handler for managing the sending of the user to the OAuth provider for approval/login
     /// Route definition would be in the form
     /// ["method":"get", "uri":"/to/vk", "handler":Vk.sendToProvider]
-    public static func sendToProvider(data: [String:Any]) throws -> RequestHandler {
-        //        let rand = URandom()
-
-        return {
-            request, response in
-            // Add secure state token to session
-            // We expect to get this back from the auth
-            //            request.session?.data["state"] = rand.secureToken
-
-            let vk = Vk(clientID: VkConfig.appid, clientSecret: VkConfig.secret)
-            response.redirect(path: vk.getLoginLink(state: request.session?.data["csrf"] as! String, request: request))
-        }
+	public static func sendToProvider(request: HTTPRequest, response: HTTPResponse) {
+		// Add secure state token to session
+		// We expect to get this back from the auth
+		let vk = Vk(clientID: VkConfig.appid, clientSecret: VkConfig.secret)
+		response.redirect(path: vk.getLoginLink(state: request.session?.data["csrf"] as! String, request: request))
     }
 }
