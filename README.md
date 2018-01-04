@@ -8,7 +8,7 @@
 [![Perfect logo](http://www.perfect.org/github/Perfect_GH_button_4_slack.jpg)](http://perfect.ly)
 
 
-[![Swift 3.0](https://img.shields.io/badge/Swift-3.0-orange.svg?style=flat)](https://developer.apple.com/swift/)
+[![Swift 4.0](https://img.shields.io/badge/Swift-4.0-orange.svg?style=flat)](https://developer.apple.com/swift/)
 [![Platforms OS X | Linux](https://img.shields.io/badge/Platforms-OS%20X%20%7C%20Linux%20-lightgray.svg?style=flat)](https://developer.apple.com/swift/)
 [![License Apache](https://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](http://perfect.org/licensing.html)
 [![Twitter](https://img.shields.io/badge/Twitter-@PerfectlySoft-blue.svg?style=flat)](http://twitter.com/PerfectlySoft)
@@ -26,14 +26,14 @@ A demo application can be found at [https://github.com/PerfectExamples/Perfect-A
 
 This package builds with Swift Package Manager and is part of the [Perfect](https://github.com/PerfectlySoft/Perfect) project. It was written to be stand-alone and so does not require PerfectLib or any other components.
 
-Ensure you have installed and activated the latest Swift 3.0 tool chain.
+Ensure you have installed and activated the latest Swift 4.0 tool chain.
 
 ## Adding to your project
 
 Add this project as a dependency in your Package.swift file.
 
 ``` swift
-.Package(url: "https://github.com/PerfectlySoft/Perfect-OAuth2.git", majorVersion: 1)
+.Package(url: "https://github.com/PerfectlySoft/Perfect-OAuth2.git", majorVersion: 3)
 ```
 
 To then use the OAuth2 module in your code:
