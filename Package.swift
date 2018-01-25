@@ -5,7 +5,6 @@ let package = Package(
 	name: "OAuth2",
 	targets: [],
 	dependencies: [
-		.Package(url: "https://github.com/PerfectlySoft/PerfectLib.git", majorVersion: 3),
 		.Package(url: "https://github.com/PerfectlySoft/Perfect-HTTP.git", majorVersion: 3),
 		.Package(url: "https://github.com/PerfectlySoft/Perfect-Logger.git", majorVersion: 3),
 		.Package(url: "https://github.com/iamjono/SwiftString.git", majorVersion: 2),
