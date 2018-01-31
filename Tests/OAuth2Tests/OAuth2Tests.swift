@@ -1,7 +1,7 @@
 import XCTest
-@testable import AuthProviders
+@testable import OAuth2
 
-class AuthProvidersTests: XCTestCase {
+class OAuth2Tests: XCTestCase {
 
 
 
@@ -12,7 +12,7 @@ class AuthProvidersTests: XCTestCase {
     }
 
 
-    static var allTests : [(String, (AuthProvidersTests) -> () throws -> Void)] {
+    static var allTests : [(String, (OAuth2Tests) -> () throws -> Void)] {
         return [
             ("testGitHub", testGitHub),
         ]
