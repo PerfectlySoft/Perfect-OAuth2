@@ -72,7 +72,7 @@ public class GitHub: OAuth2 {
 		}
 		if let n = data["name"] {
 			let nn = n as! String
-			let nnn = nn.split(" ")
+			let nnn = nn.split(separator: " ")
 			if nnn.count > 0 {
 				out["first_name"] = nnn.first
 			}

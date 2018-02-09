@@ -9,7 +9,6 @@
 import PerfectLib
 import PerfectCURL
 import cURL
-import SwiftString
 import PerfectHTTP
 
 
@@ -103,7 +102,7 @@ extension OAuth2 {
 		// parse the body data into a json convertible
 		do {
 			if (content?.count)! > 0 {
-				if (content?.startsWith("["))! {
+				if (content?.starts(with: "["))! {
 					let arr = try content?.jsonDecode() as! [Any]
 					data["response"] = arr
 				} else {
