@@ -1,12 +1,23 @@
-// Generated automatically by Perfect Assistant Application
-// Date: 2017-10-04 19:25:51 +0000
+// swift-tools-version:4.0
+
 import PackageDescription
+
 let package = Package(
-	name: "OAuth2",
-	targets: [],
-	dependencies: [
-		.Package(url: "https://github.com/PerfectlySoft/Perfect-Logger.git", majorVersion: 3),
-		.Package(url: "https://github.com/iamjono/SwiftString.git", majorVersion: 2),
-		.Package(url: "https://github.com/PerfectlySoft/Perfect-Session.git", majorVersion: 3),
-	]
+    name: "OAuth2",
+    products: [
+        .library(
+            name: "OAuth2",
+            targets: ["OAuth2"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/PerfectlySoft/Perfect-Session.git", from: "3.1.3"),
+    ],
+    targets: [
+        .target(
+            name: "OAuth2",
+            dependencies: ["PerfectSession"]),
+        .testTarget(
+            name: "OAuth2Tests",
+            dependencies: ["OAuth2"]),
+    ]
 )

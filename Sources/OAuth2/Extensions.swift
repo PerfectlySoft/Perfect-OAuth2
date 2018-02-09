@@ -6,8 +6,8 @@
 //
 //
 
-import SwiftString
 import PerfectLib
+import Foundation
 
 func urlencode(dict: [String: String]) -> String {
 
@@ -20,6 +20,30 @@ func urlencode(dict: [String: String]) -> String {
 	return httpBody
 
 }
+
+fileprivate extension String {
+  func parseHTTPStatus() -> (version: String, code: Int, status: String)? {
+    let line = self.trimmingCharacters(in: .whitespaces)
+    guard line.lowercased().hasPrefix("http/") else {
+      return nil
+    }
+    var http = line.components(separatedBy: .whitespaces)
+
+    // parse the tokens
+    let version = http[0].trimmingCharacters(in: .whitespaces)
+    let code = Int(http[1]) ?? 0
+    http.removeFirst(2)
+    let status = http.joined(separator: " ")
+    return (version: version, code: code, status: status)
+  }
+  func parseHeader() -> (key: String, value: String)? {
+    guard let range = self.range(of: ":") else { return nil }
+    let key = self[self.startIndex ..< range.lowerBound].trimmingCharacters(in: .whitespaces)
+    let value = self[range.upperBound ..< self.endIndex].trimmingCharacters(in: .whitespaces)
+    return (key: String(key), value: String(value))
+  }
+}
+
 
 /// A lightweight HTTP Response Header Parser
 /// transform the header into a dictionary with http status code
@@ -35,34 +59,19 @@ class HTTPHeaderParser {
 	public init(header: String) {
 
 		// parse the header into lines,
-		_ = header.components(separatedBy: .newlines)
+		header.components(separatedBy: .newlines)
 			// remove all null lines
 			.filter{!$0.isEmpty}
 			// map each line into the dictionary
-			.map{
+			.forEach {
 
-				// most HTTP header lines have a patter of "variable name: value"
-				let range = $0.range(of: ":")
-
-				if (range == nil && $0.hasPrefix("HTTP/")) {
-					// except the first line, typically "HTTP/1.0 200 OK", so split it first
-					let http = $0.tokenize()
-
-					// parse the tokens
-					_version = http[0].trimmed()
-					_code = http[1].toInt()!
-					_status = http[2].trimmed()
-				} else {
-
-					// split the line into a dictionary item expression
-					//	let key = $0.left(range)
-					//	let val = $0.right(range).trimmed()
-					let key = $0.substring(to: (range?.upperBound)!)
-					let val = $0.substring(from: (range?.lowerBound)!).trimmed()
-
-					// insert or update the dictionary with this item
-					_dic.updateValue(val, forKey: key)
-				}
+        if let (version, code, status) = $0.parseHTTPStatus() {
+          _version = version
+          _code = code
+          _status = status
+        } else if let (key, val) = $0.parseHeader() {
+          _dic.updateValue(val, forKey: key)
+        }
 		}
 	}
 
