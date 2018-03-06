@@ -27,22 +27,22 @@ import PerfectSession
 
 /// Vk configuration singleton
 public struct VkConfig {
-    
+
     /// AppID obtained from registering app with Vk (Also known as Client ID)
     public static var appid = ""
-    
+
     /// Secret associated with AppID (also known as Client Secret)
     //ss7O6Aw2jIDK4nZw5YFx
     public static var secret = ""
-    
+
     /// Where should Vk redirect to after Authorization
     //http://localhost:8181/auth/response/vk
     public static var endpointAfterAuth = ""
-    
+
     /// Where should the app redirect to after Authorization & Token Exchange
     //http://localhost:8181
     public static var redirectAfterAuth = ""
-    
+
     public init(){}
 }
 
@@ -59,23 +59,23 @@ public class Vk: OAuth2 {
     public init(clientID: String, clientSecret: String) {
         let tokenURL = "https://oauth.vk.com/access_token"
         let authorizationURL = "https://oauth.vk.com/authorize"
-        
+
         super.init(clientID: clientID, clientSecret: clientSecret, authorizationURL: authorizationURL, tokenURL: tokenURL)
     }
-    
+
     private var appAccessToken: String {
         return clientID + "%7C" + clientSecret
     }
-    
+
     /// After exchanging token, this function retrieves user information from Vk
     public func getUserData(_ accessToken: String) -> [String: Any] {
-        
+
         let url = "https://api.vk.com/method/getProfiles?&access_token=\(accessToken)&v=5.71"
-        
+
         let request = makeRequest(.get, url)
-        
+
         let response = request["response"] as? [Any]
-        
+
         guard
             let data = response?.last as? [String: Any],
             let id = data["id"] as? Int,
@@ -85,29 +85,28 @@ public class Vk: OAuth2 {
                 print("empty data")
                 return ["error": "empty vk data or no data in response"]
         }
-        
+
         var out = [String: Any]()
-        
+
         out["userid"] = "\(id)"
         out["first_name"] = first_name
         out["last_name"] = last_name
         out["photo_200"] = digIntoDictionary(mineFor: ["url"], data: data) as? String ?? ""
-        
+
         return out
         
     }
-    
+
     /// Vk-specific exchange function
     public func exchange(request: HTTPRequest, state: String) throws -> OAuth2Token {
         return try exchange(request: request, state: state, redirectURL: VkConfig.endpointAfterAuth)
     }
-    
+
     /// Vk-specific login link
     public func getLoginLink(state: String, request: HTTPRequest, scopes: [String] = []) -> String {
         return getLoginLink(redirectURL: VkConfig.endpointAfterAuth, state: state, scopes: scopes)
     }
-    
-    
+
     /// Route handler for managing the response from the OAuth provider
     /// Route definition would be in the form
     /// ["method":"get", "uri":"/auth/response/vk", "handler":Vk.authResponse]
@@ -115,21 +114,21 @@ public class Vk: OAuth2 {
         return {
             request, response in
             let vk = Vk(clientID: VkConfig.appid, clientSecret: VkConfig.secret)
-            
+
             do {
                 guard let state = request.session?.data["csrf"] else {
                     throw OAuth2Error(code: .unsupportedResponseType)
                 }
-                
+
                 let t = try vk.exchange(request: request, state: state as! String)
-                
+
                 request.session?.data["accessToken"] = t.accessToken
                 request.session?.data["refreshToken"] = t.refreshToken
-                
+
                 let userdata = vk.getUserData(t.accessToken)
-                
+
                 request.session?.data["loginType"] = "vk"
-                
+
                 if let i = userdata["userid"] {
                     request.session?.userid = i as! String
                 }
@@ -142,14 +141,14 @@ public class Vk: OAuth2 {
                 if let i = userdata["picture"] {
                     request.session?.data["picture"] = i as! String
                 }
-                
+
             } catch {
                 print(error)
             }
             response.redirect(path: VkConfig.redirectAfterAuth, sessionid: (request.session?.token)!)
         }
     }
-    
+
     /// Route handler for managing the sending of the user to the OAuth provider for approval/login
     /// Route definition would be in the form
     /// ["method":"get", "uri":"/to/vk", "handler":Vk.sendToProvider]
