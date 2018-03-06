@@ -160,4 +160,3 @@ public class Vk: OAuth2 {
         response.redirect(path: vk.getLoginLink(state: request.session?.data["csrf"] as! String, request: request))
     }
 }
-
