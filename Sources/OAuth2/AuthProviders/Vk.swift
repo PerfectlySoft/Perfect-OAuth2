@@ -82,7 +82,6 @@ public class Vk: OAuth2 {
             let first_name = data["first_name"] as? String,
             let last_name = data["last_name"] as? String
             else {
-                print("empty data")
                 return ["error": "empty vk data or no data in response"]
         }
 
