@@ -57,8 +57,8 @@ public class Vk: OAuth2 {
      https://oauth.vk.com/authorize?client_id=1&redirect_uri=http://examp
      */
     public init(clientID: String, clientSecret: String) {
-        let tokenURL = ""
-        let authorizationURL = ""
+        let tokenURL = "https://oauth.vk.com/access_token"
+        let authorizationURL = "https://oauth.vk.com/authorize"
 
         super.init(clientID: clientID, clientSecret: clientSecret, authorizationURL: authorizationURL, tokenURL: tokenURL)
     }
@@ -70,35 +70,30 @@ public class Vk: OAuth2 {
     /// After exchanging token, this function retrieves user information from Vk
     public func getUserData(_ accessToken: String) -> [String: Any] {
 
-        let url = "https://api.vk.com/method/getProfiles?&access_token=\(accessToken)"
+        let url = "https://api.vk.com/method/getProfiles?&access_token=\(accessToken)&v=5.71"
 
         let request = makeRequest(.get, url)
 
         let response = request["response"] as? [Any]
 
-        guard let data = response?.last as? [String: Any] else {
-            print("empty response")
-            return ["error": "empty vk data"]
-        }
-
         guard
-            let id = data["uid"],
-            let first_name = data["first_name"],
-            let last_name = data["last_name"]
-        else {
-            print("empty data")
-            return ["error": "empty vk data"]
+            let data = response?.last as? [String: Any],
+            let id = data["id"] as? Int,
+            let first_name = data["first_name"] as? String,
+            let last_name = data["last_name"] as? String
+            else {
+                return ["error": "empty vk data or no data in response"]
         }
 
         var out = [String: Any]()
 
         out["userid"] = "\(id)"
-        out["first_name"] = first_name as? String
-        out["last_name"] = last_name as? String
+        out["first_name"] = first_name
+        out["last_name"] = last_name
         out["photo_200"] = digIntoDictionary(mineFor: ["url"], data: data) as? String ?? ""
 
-        print("out", out)
         return out
+        
     }
 
     /// Vk-specific exchange function
@@ -110,7 +105,6 @@ public class Vk: OAuth2 {
     public func getLoginLink(state: String, request: HTTPRequest, scopes: [String] = []) -> String {
         return getLoginLink(redirectURL: VkConfig.endpointAfterAuth, state: state, scopes: scopes)
     }
-
 
     /// Route handler for managing the response from the OAuth provider
     /// Route definition would be in the form
@@ -157,10 +151,10 @@ public class Vk: OAuth2 {
     /// Route handler for managing the sending of the user to the OAuth provider for approval/login
     /// Route definition would be in the form
     /// ["method":"get", "uri":"/to/vk", "handler":Vk.sendToProvider]
-	public static func sendToProvider(request: HTTPRequest, response: HTTPResponse) {
-		// Add secure state token to session
-		// We expect to get this back from the auth
-		let vk = Vk(clientID: VkConfig.appid, clientSecret: VkConfig.secret)
-		response.redirect(path: vk.getLoginLink(state: request.session?.data["csrf"] as! String, request: request))
+    public static func sendToProvider(request: HTTPRequest, response: HTTPResponse) {
+        // Add secure state token to session
+        // We expect to get this back from the auth
+        let vk = Vk(clientID: VkConfig.appid, clientSecret: VkConfig.secret)
+        response.redirect(path: vk.getLoginLink(state: request.session?.data["csrf"] as! String, request: request))
     }
 }
